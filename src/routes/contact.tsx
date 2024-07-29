@@ -1,6 +1,6 @@
-import { Form, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import { ActionFunctionArgs, Form, LoaderFunctionArgs, useFetcher, useLoaderData } from "react-router-dom";
 // @ts-expect-error import from js file
-import { getContact } from '../../api/contacts';
+import { getContact, updateContact } from '../../api/contacts';
 
 export interface IContact {
   id: number,
@@ -19,7 +19,21 @@ export interface IContact {
 // eslint-disable-next-line react-refresh/only-export-components
 export async function loader({ params }: LoaderFunctionArgs) {
   const contact = await getContact(params.contactId);
+  if (!contact) {
+    throw new Response("", {
+      status: 404,
+      statusText: "Not Found",
+    });
+  }
   return { contact };
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export async function action({ request, params }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  return updateContact(params.contactId, {
+    favorite: formData.get("favorite") === "true",
+  });
 }
 
 export default function Contact() { // { contact }: ContactComponentProps
@@ -88,9 +102,11 @@ export default function Contact() { // { contact }: ContactComponentProps
 }
 
 function Favorite({ contact }: { contact: any }) {
-  const favorite = contact.favorite;
+  const fetcher = useFetcher();
+  const favorite = fetcher.formData ? fetcher.formData.get("favorite") === "true" : contact.favorite;
+
   return (
-    <Form method="post">
+    <fetcher.Form method="post">
       <button
         name="favorite"
         value={favorite ? "false" : "true"}
@@ -102,6 +118,6 @@ function Favorite({ contact }: { contact: any }) {
       >
         {favorite ? "★" : "☆"}
       </button>
-    </Form>
+    </fetcher.Form>
   );
 }
