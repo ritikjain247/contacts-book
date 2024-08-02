@@ -3,7 +3,7 @@ import { matchSorter } from "match-sorter";
 import sortBy from "sort-by";
 
 interface IContact {
-  id: string;
+  id?: string;
   first?: string;
   last?: string;
   avatar?: string;

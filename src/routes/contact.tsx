@@ -1,5 +1,4 @@
 import { ActionFunctionArgs, Form, LoaderFunctionArgs, useFetcher, useLoaderData } from "react-router-dom";
-// @ts-expect-error import from js file
 import { getContact, updateContact } from '../../api/contacts';
 
 export interface IContact {
@@ -18,7 +17,7 @@ export interface IContact {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export async function loader({ params }: LoaderFunctionArgs) {
-  const contact = await getContact(params.contactId);
+  const contact = await getContact(params.contactId || '');
   if (!contact) {
     throw new Response("", {
       status: 404,
